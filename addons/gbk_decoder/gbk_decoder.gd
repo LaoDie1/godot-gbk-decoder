@@ -131,7 +131,7 @@ const MAP = [
 	[64012,64013,64014,64015,64017,64019,64020,64024,64031,64032,64033,64035,64036,64039,64040,64041,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ]
 
-static func decode(byte1: int, byte2: int) -> String:
+static func _decode(byte1: int, byte2: int) -> String:
 	var zone = byte1 - 0x81
 	if zone < 0 or zone >= MAP.size():
 		return ""
@@ -150,11 +150,7 @@ static func _byte2_offset(byte2: int) -> int:
 		return (byte2 - 0x80) + 63
 	return -1
 
-
-static func load_file(file_path: String) -> String:
-	# 假设你从文件或网络收到了 GBK 编码的字节
-	var gbk_bytes: PackedByteArray = FileAccess.get_file_as_bytes(file_path)
-
+static func decode_bytes(gbk_bytes: PackedByteArray) -> String:
 	var result : String = ""
 	var i = 0
 	while i < gbk_bytes.size():
@@ -165,7 +161,7 @@ static func load_file(file_path: String) -> String:
 			i += 1
 		elif byte1 >= 0x81 and byte1 <= 0xFE and i + 1 < gbk_bytes.size():
 			var byte2 = gbk_bytes[i + 1]
-			var ch = decode(byte1, byte2)
+			var ch = _decode(byte1, byte2)
 			if ch != "":
 				result += ch
 			else:
@@ -176,3 +172,8 @@ static func load_file(file_path: String) -> String:
 			i += 1
 
 	return result
+
+static func load_file(file_path: String) -> String:
+	# 假设你从文件或网络收到了 GBK 编码的字节
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(file_path)
+	return decode_bytes(bytes)
